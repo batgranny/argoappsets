@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: guestbook-list
+spec:
+  generators:
+  - list:
+      elements:
+      - custid: "001"
+        region: ue2
+      - custid: "002"
+        region: ch3
+  template:
+    metadata:
+      name: '{{custid}}-guestbook'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        targetRevision: HEAD
+        path: guestbook
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'tm{{custid}}'
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: guestbook-git
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/batgranny/argoappsets
+      revision: HEAD
+      files:
+      - path: "customers/*"
+  template:
+    metadata:
+      name: '{{deployment.name}}-deployment'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      source:
+        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        targetRevision: HEAD
+        path: guestbook
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'demo-tm-{{deployment.name}}'
